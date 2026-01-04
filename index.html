@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Kaede</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            /* ★変更：幸せなピンク色のグラデーション */
+            background: linear-gradient(135deg, #FF9A9E, #FECFEF);
+            overflow: hidden; 
+            font-family: 'M PLUS Rounded 1c', sans-serif; 
+            color: white;
+            touch-action: none;
+        }
+
+        /* --- スタート画面（オーバーレイ） --- */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            /* ★変更：文字色を濃いピンクに */
+            color: #FF6B6B;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000; cursor: pointer;
+            text-align: center;
+        }
+
+        /* --- 常時表示する固定メッセージ --- */
+        #fixed-header {
+            position: fixed;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            z-index: 600;
+            /* ★変更：影を少し濃いピンクにして読みやすく */
+            text-shadow: 2px 2px 4px rgba(255, 107, 107, 0.6);
+            pointer-events: none;
+        }
+        #fixed-header h2 {
+            margin: 0;
+            font-size: 2.5rem; /* 1.8rem → 2.5rem (約40px) に変更 */
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            line-height: 1.2;
+        }
+
+        /* 名前（Happy birthday KAEDE）もバランスを見て大きく */
+        #fixed-header h1 {
+            margin: 5px 0 0 0;
+            font-size: 2.8rem; /* 2.2rem → 2.8rem (約45px) に変更 */
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- 切り替わるメインメッセージ --- */
+        #message-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; z-index: 500; width: 90%;
+            /* ★変更：ポップなピンクの影 */
+            text-shadow: 2px 2px 0px #FF6B6B;
+            pointer-events: none;
+        }
+        
+        #main-text {
+            font-size: 8vw; 
+            font-weight: 800;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        @media (min-width: 768px) {
+            #main-text { font-size: 3rem; }
+            #fixed-header h1 { font-size: 3rem; }
+            #fixed-header h2 { font-size: 1.5rem; }
+        }
+
+        /* --- 写真のスタイル --- */
+        .memory {
+            position: absolute; 
+            border: 4px solid white; 
+            border-bottom: 12px solid white;
+            /* 影を少し柔らかく */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+            border-radius: 3px;
+            opacity: 0; pointer-events: none; object-fit: cover;
+            will-change: transform, opacity;
+        }
+
+        /* --- アニメーション --- */
+        .pop-in-text { animation: popText 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes popText { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        @keyframes popMemory {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; transform: scale(1.1) rotate(-10deg); }
+            30% { transform: scale(1.0) rotate(-10deg); }
+            80% { opacity: 1; transform: scale(1.0) rotate(-10deg); }
+            100% { transform: scale(1.5) translateY(100px) rotate(20deg); opacity: 0; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay" onclick="startSurprise()">
+        <h1 style="font-size: 2rem; margin-bottom: 10px;">楓さん！</h1>
+        <p style="font-size: 1rem;">画面をタップしてスタート！<br>（音が出るよ🎵）</p>
+        <div style="font-size: 4rem; margin-top: 20px; animation: bounce 1s infinite;">🎁</div>
+    </div>
+
+    <div id="fixed-header">
+        <h2>1月4日</h2>
+        <h1>Happy birthday KAEDE</h1>
+    </div>
+
+    <div id="message-container">
+        <h2 id="main-text"></h2>
+    </div>
+
+    <audio id="bgm" src="music.mp3" playsinline preload="auto"></audio>
+
+    <script>
+        // 写真の枚数を入力してください（例: 178枚なら 178 に変更）
+        const totalImages = 178; 
+        
+        const audio = document.getElementById('bgm');
+        const overlay = document.getElementById('overlay');
+        const mainText = document.getElementById('main-text');
+        // スマホ判定
+        const isMobile = window.innerWidth < 600;
+
+        function startSurprise() {
+            overlay.style.display = 'none';
+            audio.volume = 0.5;
+            
+            audio.play().catch(e => console.log("再生エラー: " + e));
+            
+            // --- メッセージのタイムライン ---
+            
+            // 0.5秒後
+            setTimeout(() => { showText("Happy Birthday!!"); }, 500);
+            
+            // 4秒後
+            setTimeout(() => { showText("いつも笑顔を\nありがとう"); }, 4000); 
+            
+            // ★ 8秒後：追加したメッセージ（読む時間を長めに取っています）
+            setTimeout(() => { showText("みんなのハートを\n優しく抱きしめている\nKAEDEさん"); }, 8000);
+            
+            // 14秒後：締めのメッセージ
+            setTimeout(() => { showText("素敵な1年に\nなりますように！"); }, 14000);
+
+            // 写真を出し始める
+            setInterval(spawnMemory, 600); 
+        }
+
+        function showText(text) {
+            mainText.innerText = text;
+            mainText.classList.remove('pop-in-text');
+            void mainText.offsetWidth;
+            mainText.classList.add('pop-in-text');
+        }
+
+        function spawnMemory() {
+            const img = document.createElement('img');
+            // 1 から totalImages までのランダムな番号を生成
+            const id = Math.floor(Math.random() * totalImages) + 1;
+            
+            img.src = `images/${id}.png`; // PNGファイル
+            img.className = 'memory';
+            
+            // ★ サイズ調整ロジック（さらに小さく変更）
+            let minSize, maxSize;
+            if (isMobile) {
+                // スマホ：60px 〜 120px (以前より小さく)
+                minSize = 60;
+                maxSize = 60; 
+            } else {
+                // PC：120px 〜 250px
+                minSize = 120;
+                maxSize = 130;
+            }
+            const size = Math.random() * maxSize + minSize;
+
+            // 配置（画面端ギリギリに出ないように制限）
+            const x = Math.random() * 86 + 2; // 2vw ~ 88vw
+            const y = Math.random() * 70 + 15; // 15vh ~ 85vh
+            
+            img.style.left = x + 'vw';
+            img.style.top = y + 'vh';
+            img.style.width = size + 'px';
+            
+            const duration = Math.random() * 2 + 3;
+            img.style.animation = `popMemory ${duration}s ease-in-out forwards`;
+            
+            document.body.appendChild(img);
+            setTimeout(() => img.remove(), duration * 1000 + 100);
+        }
+    </script>
+</body>
+</html>
