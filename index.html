@@ -81,11 +81,13 @@
             position: absolute; 
             border: 4px solid white; 
             border-bottom: 12px solid white;
-            /* 影を少し柔らかく */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+            /* ★変更：影の広がり（3つ目の数字）を10px→5pxに減らして軽量化 */
+            box-shadow: 0 4px 5px rgba(0,0,0,0.15); 
             border-radius: 3px;
             opacity: 0; pointer-events: none; object-fit: cover;
+            /* ★重要：スマホのGPUを強制的に使うおまじないを追加 */
             will-change: transform, opacity;
+            transform: translateZ(0); 
         }
 
         /* --- アニメーション --- */
@@ -155,7 +157,7 @@
             setTimeout(() => { showText("素敵な1年に\nなりますように！"); }, 14000);
 
             // 写真を出し始める
-            setInterval(spawnMemory, 600); 
+            setInterval(spawnMemory, 800); 
         }
 
         function showText(text) {
@@ -167,28 +169,28 @@
 
         function spawnMemory() {
             const img = document.createElement('img');
-            // 1 から totalImages までのランダムな番号を生成
             const id = Math.floor(Math.random() * totalImages) + 1;
             
-            img.src = `images/${id}.png`; // PNGファイル
+            img.src = `images/${id}.png`;
             img.className = 'memory';
             
-            // ★ サイズ調整ロジック（さらに小さく変更）
+            // ★変更：サイズ調整（前より大きくしました！）
             let minSize, maxSize;
             if (isMobile) {
-                // スマホ：60px 〜 120px (以前より小さく)
-                minSize = 60;
-                maxSize = 60; 
+                // スマホ：80px 〜 150px (以前は60px固定でした)
+                minSize = 80;
+                maxSize = 150; 
             } else {
-                // PC：120px 〜 250px
-                minSize = 120;
-                maxSize = 130;
+                // PC：150px 〜 280px
+                minSize = 150;
+                maxSize = 280;
             }
-            const size = Math.random() * maxSize + minSize;
+            // ランダムなサイズを決定（maxSize - minSize の幅を持たせる）
+            const size = Math.random() * (maxSize - minSize) + minSize;
 
-            // 配置（画面端ギリギリに出ないように制限）
-            const x = Math.random() * 86 + 2; // 2vw ~ 88vw
-            const y = Math.random() * 70 + 15; // 15vh ~ 85vh
+            // 配置
+            const x = Math.random() * 86 + 2; 
+            const y = Math.random() * 70 + 15; 
             
             img.style.left = x + 'vw';
             img.style.top = y + 'vh';
